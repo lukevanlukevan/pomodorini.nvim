@@ -30,7 +30,7 @@ return {
 	opts = {
 		status_line = { "[r]estart [b]reak [c]lose" },
 		use_highlight = true,
-		highlight_color = "00FF00",
+		highlight_color = "FF0000",
 		timer_dur = 25,
 		break_dur = 5,
 		use_snacks = false,
