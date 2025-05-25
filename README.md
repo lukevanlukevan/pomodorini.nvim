@@ -1,12 +1,11 @@
-# 🍅 `snacks.nvim`
+# 🍅 `pomodorini.nvim`
 
-A collection of small QoL plugins for Neovim.
-
+A small Neovim pomodoro timer.
 
 ## Requirements
 
 - **Neovim** >= 0.9.4
-- for better toggle support:
+- For better toggle support:
   - [snacks.nvim](https://github.com/folke/snacks.nvim)
 
 ## Installation
@@ -21,15 +20,13 @@ return {
 }
 ```
 
-For an in-depth setup of `snacks.nvim` with `lazy.nvim`, check the [example](https://github.com/folke/snacks.nvim?tab=readme-ov-file#-usage) below.
-
 ## Configuration
 
 There are a few `opts` you can configure. The defaults are provided below:
 
 ```lua
 return {
-	"lukevanlukevan/pomodorini.nvim",
+  "lukevanlukevan/pomodorini.nvim",
 	opts = {
 		status_line = { "[r]estart [b]reak [c]lose" },
 		use_highlight = true,
@@ -44,7 +41,8 @@ return {
 			pause_toggle = "<leader>tp",
 		},
 	},
-}```
+}
+```
 
 ## 🚀 Usage
 
