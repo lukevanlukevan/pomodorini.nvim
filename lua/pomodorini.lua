@@ -7,6 +7,7 @@ local defaults = {
   timer_dur = 25,
   break_dur = 5,
   use_snacks = false,
+  row = 1,
   keymaps = {
     start = "<leader>tt",
     show = "<leader>ts",
@@ -90,7 +91,7 @@ local function create_window()
     relative = "editor",
     width = width,
     height = height,
-    row = 1,
+    row = config.row,
     col = vim.o.columns - width - 2,
     style = "minimal",
     border = "rounded",
