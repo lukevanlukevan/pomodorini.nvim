@@ -16,7 +16,7 @@ Install the plugin with your package manager:
 
 ```lua
 return {
-	"lukevanlukevan/pomodorini.nvim",
+  "lukevanlukevan/pomodorini.nvim",
 }
 ```
 
@@ -27,20 +27,23 @@ There are a few `opts` you can configure. The defaults are provided below:
 ```lua
 return {
   "lukevanlukevan/pomodorini.nvim",
-	opts = {
-		status_line = { "[r]estart [b]reak [c]lose" },
-		use_highlight = true,
-		highlight_color = "FF0000",
-		timer_dur = 25,
-		break_dur = 5,
-		use_snacks = false,
-		keymaps = {
-			start = "<leader>tt",
-			show = "<leader>ts",
-			hide = "<leader>th",
-			pause_toggle = "<leader>tp",
-		},
-	},
+  opts = {
+    status_line = { "[r]estart [b]reak [c]lose" },
+    use_highlight = true,
+    highlight_color = "FF0000", -- highlight color for progress bar
+    timer_dur = 25,
+    break_dur = 5,
+    use_snacks = false,
+    align = "br",
+    v_margin = 1,
+    h_margin = 1,
+    keymaps = {
+      start = "<leader>tt",
+      show = "<leader>ts",
+      hide = "<leader>th",
+      pause_toggle = "<leader>tp",
+    },
+  },
 }
 ```
 
