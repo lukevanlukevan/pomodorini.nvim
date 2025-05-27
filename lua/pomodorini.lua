@@ -7,7 +7,9 @@ local defaults = {
   timer_dur = 25,
   break_dur = 5,
   use_snacks = false,
-  row = 0,
+  align = "br",
+  v_margin = 1,
+  h_margin = 1,
   keymaps = {
     start = "<leader>tt",
     show = "<leader>ts",
@@ -84,15 +86,24 @@ local function set_highlight()
   vim.api.nvim_buf_set_extmark(state.bufnr, ns_id, 1, 1, { end_row = 1, end_col = 60, hl_group = "timerBar" })
 end
 
+local function get_corner_options()
+  local row = config.align:sub(1, 1) == "t" and config.v_margin or vim.o.lines - 4 - config.v_margin
+  local col = config.align:sub(2) == "l" and config.h_margin or vim.o.columns - WIDTH - 2 - config.h_margin
+  print(row, col)
+  return row, col
+end
+
 local function create_window()
   local width = WIDTH
   local height = 2
+
+  local row, col = get_corner_options()
   local win_opts = {
     relative = "editor",
     width = width,
     height = height,
-    row = config.row,
-    col = vim.o.columns - width - 2,
+    row = row,
+    col = col,
     style = "minimal",
     border = "rounded",
     title = "🍅 Pomodorini",
