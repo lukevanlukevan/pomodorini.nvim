@@ -89,7 +89,6 @@ end
 local function get_corner_options()
   local row = config.align:sub(1, 1) == "t" and config.v_margin or vim.o.lines - 4 - config.v_margin
   local col = config.align:sub(2) == "l" and config.h_margin or vim.o.columns - WIDTH - 2 - config.h_margin
-  print(row, col)
   return row, col
 end
 
@@ -141,6 +140,9 @@ local function start_timer_for(duration_minutes, on_done, start_tick)
     state.timer = nil
   end
 
+  if state.hidden then
+    M.pomodorini_show()
+  end
   state.current_tick = start_tick or 0
   state.total_ticks = duration_minutes * 60
   state.timer = vim.loop.new_timer()
@@ -159,17 +161,11 @@ local function start_timer_for(duration_minutes, on_done, start_tick)
         }
         state.lines = done_lines
         set_lines(done_lines)
-        if state.hidden then
-          M.pomodorini_show()
-        end
+
         if on_done then
           on_done()
         end
         return
-      end
-
-      if state.hidden then
-        M.toggle()
       end
 
       local progress = state.current_tick / state.total_ticks
