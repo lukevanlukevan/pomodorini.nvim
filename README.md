@@ -27,16 +27,26 @@ There are a few `opts` you can configure. The defaults are provided below:
 ```lua
 return {
   "lukevanlukevan/pomodorini.nvim",
+  -- optional, only if you want to use which key groups and have the toggle icon update
+  dependencies = {
+    "folke/which-key.nvim",
+    opts = {
+      spec = {
+        { "<leader>t", icon = "🍅", group = "Pomodorini" },
+      },
+    },
+  },
+  -- end optional
   opts = {
-    status_line = { "[r]estart [b]reak [c]lose" }, -- line that shows above progress bar
-    use_highlight = true, -- use highlighting 
-    highlight_color = "FF0000", -- highlight color for progress bar
-    timer_dur = 25, -- default timer duration
-    break_dur = 5, -- default break duration
-    use_snacks = false, -- if you have which-key, add a group for Pomodorini
-    align = "br", -- which corner to align the timer to (tl,tr,bl,br)
-    v_margin = 1, -- vertical margin for floating window
-    h_margin = 1, -- horizontal margin for floating window
+    status_line = { "[r]estart [b]reak [q]uit", "Time to focus" },
+    use_highlight = true,
+    highlight_color = "FF0000",
+    timer_dur = 25,
+    break_dur = 5,
+    use_snacks = false, -- set this to true if you are using which key
+    align = "tr",
+    v_margin = 1,
+    h_margin = 1,
     keymaps = {
       start = "<leader>tt",
       show = "<leader>ts",

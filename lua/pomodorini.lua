@@ -179,7 +179,6 @@ local function start_timer_for(duration_minutes, on_done, start_tick)
       local secondsleft = state.total_ticks - state.current_tick
       local minutesleft = math.floor(secondsleft / 60)
       local modsecs = math.fmod(secondsleft, 60)
-      state.status_line = " " .. config.status_line[math.random(#config.status_line)]
       local lines = {
         state.status_line,
         bar .. string.format(" %dm %ds left", minutesleft, modsecs),
@@ -198,6 +197,15 @@ local function start_timer_for(duration_minutes, on_done, start_tick)
 end
 
 local function init_buffer_keymaps()
+  vim.keymap.set("n", "q", function()
+    if vim.api.nvim_win_is_valid(state.win_id) then
+      vim.api.nvim_win_close(state.win_id, true)
+    end
+    stop_timer()
+    state.win_id = nil
+    state.hidden = true
+  end, { buffer = state.bufnr, nowait = true, silent = true })
+
   vim.keymap.set("n", "h", M.toggle, { buffer = state.bufnr, nowait = true, silent = true })
 
   vim.keymap.set("n", "r", function()
@@ -218,15 +226,6 @@ M.start_timer = function(duration, on_done)
     M.create_window()
   end
   vim.api.nvim_buf_set_option(state.bufnr, "bufhidden", "hide")
-
-  vim.keymap.set("n", "c", function()
-    if vim.api.nvim_win_is_valid(state.win_id) then
-      vim.api.nvim_win_close(state.win_id, true)
-    end
-    stop_timer()
-    state.win_id = nil
-    state.hidden = true
-  end, { buffer = state.bufnr, nowait = true, silent = true })
 
   init_buffer_keymaps()
 
@@ -261,6 +260,8 @@ M.show = function()
     end
   end
 
+  state.status_line = config.status_line[math.random(#config.status_line)]
+
   if state.hidden and state.bufnr and vim.api.nvim_buf_is_valid(state.bufnr) then
     create_window()
     init_buffer_keymaps()
@@ -269,6 +270,9 @@ M.show = function()
       set_lines(state.lines)
     end
   end
+  -- if config.use_highlight then
+  --   set_highlight()
+  -- end
 end
 
 M.get_config = function()
