@@ -46,7 +46,7 @@ M.setup = function(opts)
           return M.is_paused()
         end,
         set = function()
-          M.pomodorini_pause_toggle()
+          M.pause_toggle()
         end,
       })
       :map("<leader>tp")
@@ -68,6 +68,14 @@ local state = {
   total_ticks = nil,
   paused_at_tick = 0,
 }
+
+local function stop_timer()
+  if state.timer then
+    state.timer:stop()
+    state.timer:close()
+    state.timer = nil
+  end
+end
 
 local function render_progress_bar(progress, length)
   local filled = math.floor(progress * length)
@@ -114,13 +122,13 @@ end
 
 M.toggle = function()
   if state.hidden then
-    M.pomodorini_show()
+    M.show()
   else
-    M.pomodorini_hide()
+    M.hide()
   end
 end
 
-M.pomodorini_create = function()
+M.create_window = function()
   if state.win_id and vim.api.nvim_win_is_valid(state.win_id) then
     vim.api.nvim_win_close(state.win_id, true)
     state.win_id = nil
@@ -134,14 +142,10 @@ end
 
 local function start_timer_for(duration_minutes, on_done, start_tick)
   state.paused = false
-  if state.timer then
-    state.timer:stop()
-    state.timer:close()
-    state.timer = nil
-  end
+  stop_timer()
 
   if state.hidden then
-    M.pomodorini_show()
+    M.show()
   end
   state.current_tick = start_tick or 0
   state.total_ticks = duration_minutes * 60
@@ -157,10 +161,12 @@ local function start_timer_for(duration_minutes, on_done, start_tick)
 
         local done_lines = {
           state.status_line,
-          " Timer complete.",
+          " " .. "Timer complete.",
         }
         state.lines = done_lines
         set_lines(done_lines)
+
+        M.show()
 
         if on_done then
           on_done()
@@ -173,7 +179,7 @@ local function start_timer_for(duration_minutes, on_done, start_tick)
       local secondsleft = state.total_ticks - state.current_tick
       local minutesleft = math.floor(secondsleft / 60)
       local modsecs = math.fmod(secondsleft, 60)
-      state.status_line = config.status_line[math.random(#config.status_line)]
+      state.status_line = " " .. config.status_line[math.random(#config.status_line)]
       local lines = {
         state.status_line,
         bar .. string.format(" %dm %ds left", minutesleft, modsecs),
@@ -188,27 +194,10 @@ local function start_timer_for(duration_minutes, on_done, start_tick)
       end
     end)
   )
+  M.show()
 end
 
-M.start_timer = function(duration, on_done)
-  if not state.bufnr or not vim.api.nvim_buf_is_valid(state.bufnr) then
-    M.pomodorini_create()
-  end
-  vim.api.nvim_buf_set_option(state.bufnr, "bufhidden", "hide")
-
-  vim.keymap.set("n", "c", function()
-    if vim.api.nvim_win_is_valid(state.win_id) then
-      vim.api.nvim_win_close(state.win_id, true)
-    end
-    if state.timer then
-      state.timer:stop()
-      state.timer:close()
-      state.timer = nil
-    end
-    state.win_id = nil
-    state.hidden = true
-  end, { buffer = state.bufnr, nowait = true, silent = true })
-
+local function init_buffer_keymaps()
   vim.keymap.set("n", "h", M.toggle, { buffer = state.bufnr, nowait = true, silent = true })
 
   vim.keymap.set("n", "r", function()
@@ -222,26 +211,40 @@ M.start_timer = function(duration, on_done)
       start_timer_for(1)
     end)
   end, { buffer = state.bufnr, nowait = true, silent = true, noremap = true })
+end
+
+M.start_timer = function(duration, on_done)
+  if not state.bufnr or not vim.api.nvim_buf_is_valid(state.bufnr) then
+    M.create_window()
+  end
+  vim.api.nvim_buf_set_option(state.bufnr, "bufhidden", "hide")
+
+  vim.keymap.set("n", "c", function()
+    if vim.api.nvim_win_is_valid(state.win_id) then
+      vim.api.nvim_win_close(state.win_id, true)
+    end
+    stop_timer()
+    state.win_id = nil
+    state.hidden = true
+  end, { buffer = state.bufnr, nowait = true, silent = true })
+
+  init_buffer_keymaps()
 
   start_timer_for(duration, on_done)
 end
 
-M.pomodorini_pause_toggle = function()
+M.pause_toggle = function()
   if state.paused then
     state.paused = false
     start_timer_for(state.total_ticks / 60, nil, state.paused_at_tick)
   else
-    if state.timer then
-      state.timer:stop()
-      state.timer:close()
-      state.timer = nil
-    end
+    stop_timer()
     state.paused_at_tick = state.current_tick
     state.paused = true
   end
 end
 
-M.pomodorini_hide = function()
+M.hide = function()
   if state.win_id and vim.api.nvim_win_is_valid(state.win_id) then
     vim.api.nvim_win_hide(state.win_id)
     state.win_id = nil
@@ -249,7 +252,7 @@ M.pomodorini_hide = function()
   end
 end
 
-M.pomodorini_show = function()
+M.show = function()
   if state.win_id and vim.api.nvim_win_is_valid(state.win_id) then
     local current_buf = vim.api.nvim_win_get_buf(state.win_id)
     if current_buf ~= state.bufnr then
@@ -260,7 +263,8 @@ M.pomodorini_show = function()
 
   if state.hidden and state.bufnr and vim.api.nvim_buf_is_valid(state.bufnr) then
     create_window()
-    vim.keymap.set("n", "h", M.toggle, { buffer = state.bufnr, nowait = true, silent = true })
+    init_buffer_keymaps()
+    -- vim.keymap.set("n", "h", M.toggle, { buffer = state.bufnr, nowait = true, silent = true })
     if state.lines then
       set_lines(state.lines)
     end
